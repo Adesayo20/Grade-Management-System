@@ -1,17 +1,50 @@
 from student_info import students
+
+
 option=""
-def see_all_students():
-    all_students=""
-    while all_students.casefold()!="y".casefold() or all_students.casefold()!="n".casefold:
-        all_students=input("Enter 'Y' to see an updated list of students and their scores or enter 'N' to exit: ")
-        if all_students.casefold()=="y".casefold():
-            # Print the final dictionary of Students and their subject-score pairs
-            print()
+def see_all_students() ->None:
+    """
+    This function prompts the user to either display a list of students and their scores or exit.
+    It handles the input validation, ensuring the user can only enter 'Y' or 'N'.
+    If input is neither 'y' nor 'n', it then provides feedback to the user about the invalid input
+
+    :return: None
+    """
+    # Infinite loop to repeatedly prompt the user until valid input is received (or until they exit)
+    while True:
+        option=input("Enter 'Y' to see an updated list of students and their scores or enter 'N' to exit: ").casefold()
+
+        #If user inputs 'y', iterate over the final dictionary, print the names of students and their subject-score pairs, and exit the loop.
+        if option=="y":
+            print("\nSTUDENT SCORES")
             for student, score in students.items():
                 print(student, score)
             print()
             break
-        elif all_students.casefold()=="n".casefold():
+        #If user inputs 'n', exit the loop
+        elif option == "n":
+            break
+        # If input is neither 'y' nor 'n', provide feedback to the user about the invalid input
+        else:
+            print("Invalid input, please enter 'Y' or 'N'.")
+
+def validate_score(subject):
+    """
+
+    :param subject:
+    :return:
+    """
+    while True:
+        try:
+            score=int(input(f"{subject} score: "))
+        except ValueError:
+            print(f"INVALID! Your entry must be a number") #Print an error message if entry is not a number
+            continue
+        if score < 0 or score > 100:
+            print(f"'{score}' is invalid!\nScore has to be between 0 and 100") #Print an error message if score is out of range
+            continue
+        else:
+            return score #Return the valid value of score
             break
 
 def add_student():
@@ -31,76 +64,86 @@ def add_student():
             print(f"{name} is INVALID!\nThe name cannot contain a number!")
         else:
             break
-    subjects=["Maths", "Science", "History"]
-    scores=[] #Empty list to hold the value for scores
 
-    # Enter scores for all three subjects: Math, Science, History
 
-    #Accept value for math scores and handle invalid errors
-    while True:
-        try:
-            math_score=int(input("Math score: "))
-        except ValueError as e:
-            print(f"INVALID! Your entry must be a number") #Print an error message if entry is not a number
-            continue
-        if math_score <0 or math_score >100:
-            print(f"'{math_score}' is invalid!\n{name}'s score has to be between 0 and 100") #Print an error message if score is out of range
-            continue
-        else:
-            scores.append(math_score)
-            break
-    #Accept value for science score and handle invalid errors
-    while True:
-        try:
-            science_score=int(input("Science score: "))
-        except ValueError as e:
-            print(f"INVALID! Your entry must be a number") #Print an error message if entry is not a number
-            continue
-        if science_score <0 or science_score >100:
-            print(f"'{science_score}' is invalid!\n{name}'s score has to be between 0 and 100") #Print an error message if score is out of range
-            continue
-        else:
-            scores.append(science_score)
-            break
-    while True:
-        try:
-            history_score=int(input("History score: "))
-        except ValueError:
-            print(f"INVALID! Your entry must be a number") #Print an error message if entry is not a number
-            continue
-        if history_score <0 or history_score >100:
-            print(f"'{history_score}' is invalid!\n{name}'s score has to be between 0 and 100") #Print an error message if score is out of range
-            continue
-        else:
-            scores.append(history_score)
-            break
+    any_topics=next(iter(students.values()))
+    subjects=[subject for subject, score in any_topics]
+    score=[] #Empty list to hold the value for scores
 
-    score_value=list(zip(subjects, scores)) #ZippinG the subject an scores into tuples and constructint them into a list
-    students[name]=score_value #   Entering a new value into the students dictionary
+    # Call the validate_score() function to validate the score for all three subjects and append their value to the var 'score_list'
+    math_score=validate_score(subjects[0])
+    score.append(math_score)
 
+    science_score=validate_score(subjects[1])
+    score.append(science_score)
+
+    history_score=validate_score(subjects[1])
+    score.append(history_score)
+
+    score_value=list(zip(subjects, score)) #Zipping the subject an scores into tuples and constructing them into a list
+
+    #Enter a new key:value pair into the global students dictionary
+    students[name]=score_value
+
+    # Call the see_all_students() function if the user wishes to see the new student in the global dictionary
     see_all_students()
 
 
-def calculate_student_average_score(student_name):
+def calculate_student_average_score(student_name: str) ->None:
+    """
+    This function calculates and prints the average score of a student if the student exists
+    in the `students` dictionary. If the student is not found, it prints an error message.
+
+    :param student_name: The name of the student whose average score is to be calculated.
+    :return: None
+    """
     if students.get(student_name) != None:#If student is found
-        grade_data = students[student_name]#Accessing the student's scores
-        no_of_subjects=len(grade_data)#number of subjects pulled from the length of the grade_data list
-        total_grades=grade_data[0][1]+grade_data[1][1]+grade_data[2][1]#Sum of all scores
-        average_grade=total_grades/no_of_subjects
-        print(f"{student_name}'s average score is {round(average_grade)}")
+        #bind the list containing the student's scores to the variable 'grade_data'
+        grade_data = students[student_name]
+
+        #Pull the number of subjects from the length of the grade_data list
+        no_of_subjects=len(grade_data)
+
+        #Sum up all grades by accessing the scores in the tuple for each subject in 'grade_data'
+        total_grades=sum(score for subject, score in grade_data)
+
+        #calculate average grade
+        average_grade=round(total_grades/no_of_subjects)
+
+        print(f"{student_name}'s average score is {average_grade}")
+
     else:#If student is not found
         print (f"{student_name} not found.\nDouble check your spelling or add a new student in the main menu")
 
 def find_top_student():
+    """
+     This function ind the student with the highest average score.
+
+     :param students: A dictionary where keys are student names and values are lists of tuples,
+                      each containing a subject and the corresponding score.
+     :return: None
+     """
     average_scores=[]
     score_list=[]
     top_student=""
     for student, subjects in students.items():
-        no_of_subjects=len(subjects)#number of subjects pulled from the length of the subjects list
-        total_grades=subjects[0][1]+subjects[1][1]+subjects[2][1]#Sum of all scores
-        score_list.append(round(total_grades/no_of_subjects))
-        #pair students and their average grades in a dictionary
-        stud_grade_pair={student:round(total_grades/no_of_subjects)}
+        #bind each student's dictionary value to the variable 'grade_data'
+
+        #Pull the number of subjects from the length of the grade_data list
+        no_of_subjects=len(subjects)
+
+        #Sum up all grades by accessing the scores in the tuple for each subject in 'grade_data'
+        total_grades=sum(score for _, score in subjects)
+
+        #calculate average grade
+        average_grade=round(total_grades/no_of_subjects)
+
+        #Bind each student's average grade to a list of every student's scores
+        score_list.append(average_grade)
+
+        #pair each student's average grade with their name in a new dictionary
+        stud_grade_pair= {student:average_grade}
+
         average_scores.append(stud_grade_pair)
     max_value=max(score_list)
     for item in average_scores:
@@ -110,16 +153,17 @@ def find_top_student():
     print(f"The top student is {top_student} with an average score of {max_value}")
     print()
 
+
 def view_failing_students():
     for student, subjects in students.items():
         math_grade=subjects[0][1]
-        if math_grade<50:
-            #Print a message if math score is below 50
+        if math_grade<40:
+            #Print a message if math score is below 40
             print(f"{student} is failing math with a score of {math_grade}")
 
         science_grade=subjects[1][1]
         if science_grade<50:
-            #Print a message if math score is below 50
+            #Print a message if math score is below 40
             print(f"{student} is failing science with a score of {science_grade}")
 
         history_grade=subjects[2][1]
@@ -164,9 +208,11 @@ def display_all_students_and_average_grades():
         no_of_subjects=len(subjects)#number of subjects pulled from the length of the subjects list
         total_grades=subjects[0][1]+subjects[1][1]+subjects[2][1]#Sum of all scores
         stud_grade_pair={student:round(total_grades/no_of_subjects)}
-        average_scores.append(stud_grade_pair)
-        for item in average_grades:
-            pass
+        average_grades.append(stud_grade_pair)
+
+    for item in average_grades:
+        for student, average_grade in item.items():
+            print(student, average_grade)
 
 while option != 8:
     print("SELECT FROM THE OPTIONS BELOW:")
