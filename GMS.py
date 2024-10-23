@@ -30,9 +30,10 @@ def see_all_students() ->None:
 
 def validate_score(subject):
     """
-
+    This function validate the calue of an integer and notified the user of an error
+    if the value is less than 0, or greater than 100
     :param subject:
-    :return:
+    :return:int
     """
     while True:
         try:
@@ -155,45 +156,53 @@ def find_top_student():
 
 
 def view_failing_students():
+    """
+    This function checks each student's scores in Math, Science, and History.
+    If a student has a grade below the fail treshold,it prints a message indicating the subject they are failing in.
+    """
+    fail_treshold=40
     for student, subjects in students.items():
-        math_grade=subjects[0][1]
-        if math_grade<40:
-            #Print a message if math score is below 40
-            print(f"{student} is failing math with a score of {math_grade}")
+        for subject, grade in subjects:
+            #Print a message if score is below 40
+            if grade<fail_treshold:
+                print(f"{student} failed {subject} with a score of {grade}")
 
-        science_grade=subjects[1][1]
-        if science_grade<50:
-            #Print a message if math score is below 40
-            print(f"{student} is failing science with a score of {science_grade}")
-
-        history_grade=subjects[2][1]
-        if history_grade<50:
-            #Print a message if math score is below 50
-            print(f"{student} is failing history with a score of {history_grade}")
     print()
 
-def update_student_grade(student_name):
-    if students.get(student_name) != None:#If student is found
-        while True:
-            subject=input("Enter the subject you want to update")
-            ######HELPPPPP
-        while True:
-            try:
-                score_value=int("Enter a value")
-            except ValueError:
-                print("INVALID! Value must be an integer")
-                continue
-            if score_value < 0 or score_value > 100:
-                print(f"INVALID\n{student_name}'s new score has to be between 0 and 100")
-            else:
+def update_student_grade(student_name: str):
+    """
+    
+    :param student_name: 
+    :return: 
+    """
+    student_to_update=students.get(student_name)
+    #If student is not found
+    if student_to_update:
+        subject_to_update=input("Enter the subject you wish to upgrade: ")
+        # loop through the dictionary to access the subject
+        for subject, grade in student_to_update:
+            #if the subject entered is present
+            if subject_to_update.casefold()==subject.casefold():
+                #Enter and Validate the new score using the validate score function
+                grade=validate_score(subject)
                 break
+                #FIND A WAY TO UPDATE VALUR
+
+            else:
+                print(f"{subject} is not listed in {student_name}'s courses")
 
     else:#If student is not found
-        print (f"{student_name} not found.\nDouble check your spelling or add a new student in the main menu")
+        print (f"{student_name} not found.\nPlease check your spelling")
 
 
-def remove_student(student_name):
-    if students.get(student_name) != None:#If student is found
+def remove_student(student_name:str):
+    """
+    Removes a student from the 'students' dictionary.
+
+    :param student_name: The name of the student to be removed.
+    :return: None
+    """
+    if students.get(student_name):#If student is found
         del students[student_name]
         print(f"Deleted {student_name}!")
     else:#If student is not found
@@ -203,17 +212,21 @@ def remove_student(student_name):
 
 
 def display_all_students_and_average_grades():
+    """
+    
+    :return: 
+    """
     average_grades=[]
     for student, subjects in students.items():
         no_of_subjects=len(subjects)#number of subjects pulled from the length of the subjects list
-        total_grades=subjects[0][1]+subjects[1][1]+subjects[2][1]#Sum of all scores
+        total_grades=sum(grade for _, grade in subjects)#Sum of all grade for each student
         stud_grade_pair={student:round(total_grades/no_of_subjects)}
         average_grades.append(stud_grade_pair)
-
-    for item in average_grades:
-        for student, average_grade in item.items():
-            print(student, average_grade)
-
+    print()
+    for each_student in average_grades:
+        for student, average_grade in each_student.items():
+            print(f"{student} has an average score of {average_grade}")
+    print()
 while option != 8:
     print("SELECT FROM THE OPTIONS BELOW:")
     print("Select '1' to add a student")
@@ -248,10 +261,10 @@ while option != 8:
     elif option ==4:
         view_failing_students()
     elif option== 5:
-        student_name=input("Enter a student's name to upgrade their grade")
+        student_name=input("Enter a student's name to upgrade their grade: ")
         update_student_grade(student_name)
     elif option == 6:
-        student_name=input("Enter a student's name to delete them!")
+        student_name=input("Enter a student's name to delete them: ")
         remove_student(student_name)
     elif option== 7:
         display_all_students_and_average_grades()
